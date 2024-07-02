@@ -1,0 +1,13 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.bin
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+/build/*.*
