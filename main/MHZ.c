@@ -40,7 +40,6 @@ struct MHZ_st
 } MHZ;
 
 unsigned long lastRequest       = 0;
-// bool SerialConfigured           = true;
 
 
 extern uint32_t millis(void);

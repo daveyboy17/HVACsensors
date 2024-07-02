@@ -58,16 +58,7 @@
 #define AHTXX_h
 
 
-#include <Arduino.h>
-#include <Wire.h>
-
-#if defined (ARDUINO_ARCH_AVR)
-#include <avr/pgmspace.h> //for Arduino AVR PROGMEM support
-#elif defined (ARDUINO_ARCH_ESP8266) || defined (ARDUINO_ARCH_ESP32)
-#include <pgmspace.h>     //for Arduino ESP8266 PROGMEM support
-#elif defined (ARDUINO_ARCH_STM32) || defined (ARDUINO_ARCH_SAMD)
-#include <avr/pgmspace.h> //for Arduino STM32 & SAMD21 PROGMEM support
-#endif
+#include "esp_system.h"     // needed for uint8_t etc.
 
 
 /* list of I2C addresses */
@@ -123,56 +114,21 @@
 #define AHTXX_CRC8_ERROR         0x04    //computed CRC8 not match received CRC8, for AHT2x only
 #define AHTXX_ERROR              0xFF    //other errors
 
-typedef enum : uint8_t
+
+typedef enum 
 {
   AHT1x_SENSOR = 0x00,
   AHT2x_SENSOR = 0x01,
-}
-AHTXX_I2C_SENSOR;
+} AHTXX_I2C_SENSOR;
 
 
-class AHTxx
-{
-  public:
-
-   AHTxx(uint8_t address = AHTXX_ADDRESS_X38, AHTXX_I2C_SENSOR = AHT1x_SENSOR);
-
-  #if defined (ARDUINO_ARCH_AVR)
-   bool     begin(uint32_t speed = AHTXX_I2C_SPEED_HZ, uint32_t stretch = AHTXX_I2C_STRETCH_USEC);
-  #elif defined (ARDUINO_ARCH_ESP8266)
-   bool     begin(uint8_t sda = SDA, uint8_t scl = SCL, uint32_t speed = AHTXX_I2C_SPEED_HZ, uint32_t stretch = AHTXX_I2C_STRETCH_USEC);
-  #elif defined (ARDUINO_ARCH_ESP32)
-   bool     begin(int32_t sda = SDA, int32_t scl = SCL, uint32_t speed = AHTXX_I2C_SPEED_HZ, uint32_t stretch = AHTXX_I2C_STRETCH_USEC);
-  #elif defined (ARDUINO_ARCH_STM32)
-   bool     begin(uint32_t sda = SDA, uint32_t scl = SCL, uint32_t speed = AHTXX_I2C_SPEED_HZ);
-  #elif defined (ARDUINO_ARCH_SAMD)
-   bool     begin(uint32_t speed = AHTXX_I2C_SPEED_HZ);
-  #else
-   bool     begin();
-  #endif
-
-   float    readHumidity(bool readAHT = AHTXX_FORCE_READ_DATA);
-   float    readTemperature(bool readAHT = AHTXX_FORCE_READ_DATA);
-   bool     setNormalMode();
-   bool     setCycleMode();
-   bool     setComandMode();
-   bool     softReset();
-   uint8_t  getStatus();
-   void     setType(AHTXX_I2C_SENSOR = AHT1x_SENSOR);
+bool    AHTxx(uint8_t address, AHTXX_I2C_SENSOR sensorType);
+float   readHumidity(bool readAHT);
+float   readTemperature(bool readAHT);
+void    setMode(uint8_t mode);
+uint8_t getStatus();
+void    setType(AHTXX_I2C_SENSOR);
 
 
-  private:
-   AHTXX_I2C_SENSOR _sensorType;
-   uint8_t          _address;
-   uint8_t          _status;
-   uint8_t          _rawData[7] = {0, 0, 0, 0, 0, 0, 0}; //{status, RH, RH, RH+T, T, T, CRC}, CRC for AHT2x only
-
-   void     _readMeasurement(); //TODO: IRAM_ATTR for ESP8266
-   bool     _setInitializationRegister(uint8_t value); 
-   uint8_t  _readStatusRegister();
-   uint8_t  _getCalibration();
-   uint8_t  _getBusy(bool readAHT = AHTXX_FORCE_READ_DATA);
-   bool     _checkCRC8();
-};
 
 #endif

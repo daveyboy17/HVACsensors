@@ -10,8 +10,6 @@
 
 #include "esp_system.h"     // needed for uint8_t etc.
 
-// #include <limits.h>
-
 
 #define MHZ_BAUDRATE    (9600)
 
@@ -49,7 +47,6 @@ void MHZ_init(enum SensorType type, enum MeasuringRange range);
 void MHZ_setDebug(bool enable);
 void MHZ_setBypassCheck(bool isBypassPreheatingCheck, bool isBypassResponseTimeCheck);
 
-// bool isPreHeating(void);
 bool MHZ_isReady(void);
 void setAutoCalibrate(bool b);
 void calibrateZero(void);

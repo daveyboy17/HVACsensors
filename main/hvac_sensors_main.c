@@ -29,14 +29,15 @@
 
 // select only 1 of the following
 // #define HVAC_SENSOR_INTAKE      1
-// #define HVAC_SENSOR_SUPPLY      2
-#define HVAC_SENSOR_EXTRACT     3
+#define HVAC_SENSOR_SUPPLY      2
+// #define HVAC_SENSOR_EXTRACT     3
 
 #if (HVAC_SENSOR_INTAKE > 0)
 #define SENSOR_TEXT             "Intake"
 #define USES_BMP3               1
 #define USES_BME2               0
 #define USES_MZH                0
+#define USES_AHT                0
 #define USES_LCD_SMS1706        1
 #endif
 #if (HVAC_SENSOR_SUPPLY > 0)
@@ -44,6 +45,7 @@
 #define USES_BMP3               0
 #define USES_BME2               0
 #define USES_MZH                0
+#define USES_AHT                1
 #define USES_LCD_SMS1706        1
 #endif
 #if (HVAC_SENSOR_EXTRACT > 0)
@@ -51,6 +53,7 @@
 #define USES_BMP3               0
 #define USES_BME2               1
 #define USES_MZH                1
+#define USES_AHT                0
 #define USES_LCD_SMS1706        1
 #endif
 
@@ -92,6 +95,9 @@
 #if (USES_MZH > 0)
 #include "MHZ.h"
 #include "driver/uart.h"
+#endif
+#if (USES_AHT > 0)
+#include "AHTxx.h"
 #endif
 
 
@@ -475,6 +481,23 @@ static float BMP390_compensate_pressure(uint32_t uncomp_press, struct bmp3_calib
 } // end of BMP390_compensate_pressure ---------------------
 #endif
 
+
+void pause_ms(uint16_t ms)
+{
+    vTaskDelay(ms / portTICK_PERIOD_MS);
+}
+
+
+#if (USES_AHT > 0)
+uint16_t  i2c_AHT_write(uint8_t addr, uint8_t* buf, uint16_t len)
+{
+    uint16_t sent       = 0;
+
+    i2c_master_write_to_device(I2C_MASTER_NUM, addr, buf, len, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+
+    return sent;
+}
+#endif
 
 /**
  * @brief i2c master initialization
@@ -1184,6 +1207,12 @@ void wifi_init_sta(void)
 }
 
 
+/*
+    MM   MM    A    III NN  N
+    M M M M   A A    I  N N N
+    M  M  M  AAAAA   I  N  NN
+    M     M A     A III N   N
+*/
 void app_main(void)
 {
     uint8_t data[10];
@@ -1204,8 +1233,10 @@ void app_main(void)
     disp_content.p_arrow                        = DISPLAY_ARROW_NONE;
     disp_content.q_arrow                        = DISPLAY_ARROW_NONE;
     disp_content.sig_strength                   = DISPLAY_SIGNAL_0;
-    disp_content.units                          = DISPLAY_UNIT_A;
-    disp_content.large_mode                     = DISPLAY_LARGE_NUMBER;
+    // disp_content.units                          = DISPLAY_UNIT_A;
+    // disp_content.large_mode                     = DISPLAY_LARGE_NUMBER;
+    disp_content.units                          = DISPLAY_UNIT_OFF;
+    disp_content.large_mode                     = DISPLAY_LARGE_TEXT;
     disp_content.large_num_max_dp               = 0;
     disp_content.t_reg_num                      = 0;
     disp_content.g_reg_num                      = 0;
@@ -1337,6 +1368,14 @@ void app_main(void)
     MHZ_init(MHZ14A, RANGE_5K);
     MHZ_setDebug(1);
 #endif
+
+#if (USES_AHT > 0)
+    if (AHTxx(AHT10_ADDRESS_X39, AHT1x_SENSOR) != 0)
+    {
+        printf("AHT sensor NOT initialised!");
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
+    }
+#endif
     
     sensor_id                           = 0;
 
@@ -1383,6 +1422,7 @@ void app_main(void)
             printf("BMP390 %u pressure %5.0f Pa\n", sensor_num, pressure);
 #if (USES_LCD_SMS1706 > 0)
             disp_content.large_number   = pressure;
+            sprintf(disp_content.large_text, "%3.0fhpA", pressure / 100.0);
 #endif
         }
 #endif
