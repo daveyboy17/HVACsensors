@@ -497,6 +497,20 @@ uint16_t  i2c_AHT_write(uint8_t addr, uint8_t* buf, uint16_t len)
 
     return sent;
 }
+
+
+uint16_t    i2c_AHT_read(uint8_t addr, uint8_t from, uint8_t* buf, uint16_t len)
+{
+    uint16_t    read        = len;
+    uint8_t     send_buf[2];
+
+    send_buf[0]             = from;
+
+    i2c_master_write_to_device(I2C_MASTER_NUM, addr, send_buf, 1, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+    i2c_master_read_from_device(I2C_MASTER_NUM, addr, buf, len, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+
+    return read;
+}
 #endif
 
 /**

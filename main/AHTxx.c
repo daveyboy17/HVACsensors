@@ -44,7 +44,7 @@ extern void     pause_ms(uint16_t ms);
 extern uint32_t millis(void);
 extern void     i2c_AHT_flush(void);
 extern uint16_t i2c_AHT_available(void);
-extern uint16_t i2c_AHT_read(uint8_t addr, uint8_t* buf);
+extern uint16_t i2c_AHT_read(uint8_t addr, uint8_t from, uint8_t* buf, uint16_t len);
 extern uint16_t i2c_AHT_write(uint8_t addr, uint8_t* buf, uint16_t len);
 
 
@@ -89,7 +89,7 @@ bool AHTxx(uint8_t address, AHTXX_I2C_SENSOR sensorType)
 
   softReset();            // soft reset is recommended at start (reset, set normal mode, set calibration bit & check calibration bit)
 
-  pause_ms(20);
+  pause_ms(20);           // allow time for the reset
   
   setMode(AHT1X_INIT_CTRL_NORMAL_MODE);
 
@@ -395,19 +395,14 @@ static bool aht_setInitializationRegister(uint8_t value)
 /**************************************************************************/
 static uint8_t aht_readStatusRegister()
 {
-  // delay(AHTXX_CMD_DELAY);
+  uint16_t  read_len      = 1;
 
-  // Wire.beginTransmission(aht._address);
+  pause_ms(AHTXX_CMD_DELAY);
 
-  // Wire.write(AHTXX_STATUS_REG);
+  aht.rawData[0]          = AHTXX_ERROR;
+  read_len                = i2c_AHT_read(aht.address, AHTXX_STATUS_REG, aht.rawData, 1);
 
-  // if (Wire.endTransmission(true) != 0) {return AHTXX_ERROR;} //collision on I2C bus, sensor didn't return ACK
-
-  // Wire.requestFrom(aht._address, (uint8_t)1, (uint8_t)true);     //read 1-byte to "wire.h" rxBuffer, true-send stop after transmission
-
-  // if (Wire.available() == 1) {return Wire.read();}           //read 1-byte from "wire.h" rxBuffer
-  //                             return AHTXX_ERROR;            //collision on I2C bus, "wire.h" rxBuffer is empty
-  return 0;
+  return aht.rawData[0];
 }
 
 
