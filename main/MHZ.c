@@ -43,10 +43,10 @@ unsigned long lastRequest       = 0;
 
 
 extern uint32_t millis(void);
-extern void serial_MZH_flush(void);
-extern uint16_t serial_MZH_available(void);
-extern uint16_t serial_MZH_read(uint8_t* buf);
-extern uint16_t serial_MZH_write(uint8_t* buf, uint16_t len);
+extern void serial_MHZ_flush(void);
+extern uint16_t serial_MHZ_available(void);
+extern uint16_t serial_MHZ_read(uint8_t* buf);
+extern uint16_t serial_MHZ_write(uint8_t* buf, uint16_t len);
 
 
 uint8_t getCheckSum(uint8_t *packet);
@@ -210,7 +210,7 @@ int32_t readCO2UART(void)
     printf("MHZ: - clearing uart reading buffer\n");
   }
   uint8_t dummy_buf[9];
-  serial_MZH_read(dummy_buf);
+  serial_MHZ_read(dummy_buf);
 
   if (MHZ.debug)
   {
@@ -223,7 +223,7 @@ int32_t readCO2UART(void)
   {
     printf("  >> Sending CO2 request\n");
   }
-  serial_MZH_write(cmd, 9);  // request PPM CO2
+  serial_MHZ_write(cmd, 9);  // request PPM CO2
   lastRequest         = millis();
 
   // clear the buffer
@@ -233,7 +233,7 @@ int32_t readCO2UART(void)
   }
 
   int waited        = 0;
-  while (serial_MZH_available() == 0)
+  while (serial_MHZ_available() == 0)
   {
     if (MHZ.debug)
     {
@@ -247,7 +247,7 @@ int32_t readCO2UART(void)
       {
         printf("No response after 1 second\n");
       }
-      serial_MZH_flush();
+      serial_MHZ_flush();
       return STATUS_NO_RESPONSE;
     }
   }
@@ -267,18 +267,18 @@ int32_t readCO2UART(void)
   // }
   // if (skip) printf("\n");
 
-  if (serial_MZH_available() > 0)
+  if (serial_MHZ_available() > 0)
   {
-    int count         = serial_MZH_read(response);
+    int count         = serial_MHZ_read(response);
     if (count < 9)
     {
-      serial_MZH_flush();
+      serial_MHZ_flush();
       return STATUS_INCOMPLETE;
     }
   }
   else
   {
-    serial_MZH_flush();
+    serial_MHZ_flush();
     return STATUS_INCOMPLETE;
   }
 
@@ -302,7 +302,7 @@ int32_t readCO2UART(void)
     printf("MHZ: Received: %X\n", response[8]);
     printf("MHZ: Should be: %X\n", check);
     MHZ.temperature       = STATUS_CHECKSUM_MISMATCH;
-    serial_MZH_flush();
+    serial_MHZ_flush();
     return STATUS_CHECKSUM_MISMATCH;
   }
 
@@ -329,7 +329,7 @@ int32_t readCO2UART(void)
     printf(" Status  OK: %u\n", status);
   }
 
-  serial_MZH_flush();
+  serial_MHZ_flush();
 
   return ppm_uart;
 }
@@ -389,11 +389,11 @@ void setAutoCalibrate(bool b)  // only available for MHZ-19B with firmware < 1.6
   uint8_t cmd_disableAutoCal[9]   = {0xFF, 0x01, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86};
   if (b)
   {
-    serial_MZH_write(cmd_enableAutoCal, 9);
+    serial_MHZ_write(cmd_enableAutoCal, 9);
   }
   else
   {
-    serial_MZH_write(cmd_disableAutoCal, 9);
+    serial_MHZ_write(cmd_disableAutoCal, 9);
   }
 }
 
@@ -407,15 +407,15 @@ void setRange(int range)  // only available for MHZ-19B < 1.6 and MH-Z 14a
   switch (range)
   {
     case 1:
-      serial_MZH_write(cmd_2K, 9);
+      serial_MHZ_write(cmd_2K, 9);
       break;
 
     case 2:
-      serial_MZH_write(cmd_5K, 9);
+      serial_MHZ_write(cmd_5K, 9);
       break;
 
     case 3:
-      serial_MZH_write(cmd_10K, 9);
+      serial_MHZ_write(cmd_10K, 9);
   }
 }
 
@@ -423,7 +423,7 @@ void setRange(int range)  // only available for MHZ-19B < 1.6 and MH-Z 14a
 void calibrateZero(void)
 {
   uint8_t cmd[9]    = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
-  serial_MZH_write(cmd, 9);
+  serial_MHZ_write(cmd, 9);
 }
 
 

@@ -28,15 +28,15 @@
 #define FIRMWARE_VER_MIN		2
 
 // select only 1 of the following
-// #define HVAC_SENSOR_INTAKE      1
-#define HVAC_SENSOR_SUPPLY      2
+#define HVAC_SENSOR_INTAKE      1
+// #define HVAC_SENSOR_SUPPLY      2
 // #define HVAC_SENSOR_EXTRACT     3
 
 #if (HVAC_SENSOR_INTAKE > 0)
 #define SENSOR_TEXT             "Intake"
 #define USES_BMP3               1
 #define USES_BME2               0
-#define USES_MZH                0
+#define USES_MHZ                0
 #define USES_AHT                0
 #define USES_LCD_SMS1706        1
 #endif
@@ -44,7 +44,7 @@
 #define SENSOR_TEXT             "Supply"
 #define USES_BMP3               0
 #define USES_BME2               0
-#define USES_MZH                0
+#define USES_MHZ                0
 #define USES_AHT                1
 #define USES_LCD_SMS1706        1
 #endif
@@ -52,7 +52,7 @@
 #define SENSOR_TEXT             "Extract"
 #define USES_BMP3               0
 #define USES_BME2               1
-#define USES_MZH                1
+#define USES_MHZ                1
 #define USES_AHT                0
 #define USES_LCD_SMS1706        1
 #endif
@@ -92,7 +92,7 @@
 #if (USES_BME2 > 0)
 #include "bme280.h"
 #endif
-#if (USES_MZH > 0)
+#if (USES_MHZ > 0)
 #include "MHZ.h"
 #include "driver/uart.h"
 #endif
@@ -173,7 +173,7 @@
 // #define RD_BUF_SIZE (BUF_SIZE)
 
 
-#if (USES_MZH > 0)
+#if (USES_MHZ > 0)
 static QueueHandle_t uart0_queue;
 #endif
 
@@ -925,7 +925,7 @@ void			fv_wifi_config_form(char *webpage)
 } // end of fv_wifi_config_form ----------------------------
 
 
-#if (USES_MZH > 0)
+#if (USES_MHZ > 0)
 uint32_t millis(void)
 {
     TickType_t  tick_count      = 0;
@@ -936,23 +936,23 @@ uint32_t millis(void)
 } // end of millis -----------------------------------------
 
 
-void serial_MZH_flush(void)
+void serial_MHZ_flush(void)
 {
     uart_flush_input(EX_UART_NUM);
-} // end of serial_MZH_flush -------------------------------
+} // end of serial_MHZ_flush -------------------------------
 
 
-uint16_t serial_MZH_available(void)
+uint16_t serial_MHZ_available(void)
 {
     size_t    bytes_avail     = 0;
 
     uart_get_buffered_data_len(EX_UART_NUM, &bytes_avail);
 
     return (uint16_t) bytes_avail;
-} // end of serial_MZH_available ---------------------------
+} // end of serial_MHZ_available ---------------------------
 
 
-uint16_t serial_MZH_read(uint8_t* buf)
+uint16_t serial_MHZ_read(uint8_t* buf)
 {
     uint16_t    bytes_read      = 0;
     uint16_t    buf_len         = sizeof(buf);
@@ -960,17 +960,17 @@ uint16_t serial_MZH_read(uint8_t* buf)
     bytes_read                  = uart_read_bytes(EX_UART_NUM, buf, buf_len, 100 / portTICK_PERIOD_MS);
 
     return bytes_read;
-} // end of serial_MZH_read --------------------------------
+} // end of serial_MHZ_read --------------------------------
 
 
-uint16_t serial_MZH_write(uint8_t* buf, uint16_t len)
+uint16_t serial_MHZ_write(uint8_t* buf, uint16_t len)
 {
     uint16_t    bytes_written   = 0;
 
     bytes_written               = uart_write_bytes(EX_UART_NUM, (const char*) buf, len);
 
     return bytes_written;
-} // end of serial_MZH_write -------------------------------
+} // end of serial_MHZ_write -------------------------------
 #endif
 
 
@@ -1362,7 +1362,7 @@ void app_main(void)
     }
 #endif
 
-#if (USES_MZH > 0)
+#if (USES_MHZ > 0)
     /* Configure parameters of an UART driver,
      * communication pins and install the driver */
     uart_config_t uart_config = {
@@ -1486,7 +1486,7 @@ void app_main(void)
         {
             sensor_id                   = 0;
 
-#if (USES_MZH > 0)
+#if (USES_MHZ > 0)
             readCO2UART();
 #endif
         }

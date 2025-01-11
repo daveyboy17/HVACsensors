@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "HVACsensors",
-    "project_version":    "1",
+    "project_version":    "df9ccaf-dirty",
     "project_path":       "C:/Projects/esp/HVACsensors",
     "idf_path":           "C:/Users/dburk/esp/v5.2.1/esp-idf",
     "build_dir":          "C:/Projects/esp/HVACsensors/build",
@@ -805,7 +805,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Projects/esp/HVACsensors/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Projects/esp/HVACsensors/main/MHZ.c", "C:/Projects/esp/HVACsensors/main/bme280.c", "C:/Projects/esp/HVACsensors/main/lcd_sms1706.c", "C:/Projects/esp/HVACsensors/main/hvac_sensors_main.c" ],
+            "sources": [ "C:/Projects/esp/HVACsensors/main/AHTxx.c", "C:/Projects/esp/HVACsensors/main/MHZ.c", "C:/Projects/esp/HVACsensors/main/bme280.c", "C:/Projects/esp/HVACsensors/main/lcd_sms1706.c", "C:/Projects/esp/HVACsensors/main/hvac_sensors_main.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
